@@ -1,0 +1,35 @@
+#!/bin/sh
+
+echo "Let's add a new user \n"
+echo -n "Enter a username:"                                  
+read username                                                                   
+                                                                                
+getent passwd $username >> /dev/null                                            
+                                                                                
+while [ $? -eq 0 ]                                                              
+  do                                                                            
+    echo -n "username already exists \n"                                            
+    echo -n "Please enter another one: "                                   
+    read username                                                               
+    getent passwd $username >> /dev/null                                        
+  done                                                                          
+                                                                                
+echo -n "Enter a group name: \n"                                                
+read groupname                                                                  
+                                                                                
+getent group $groupname >> /dev/null                                            
+                                                                                
+if grep -q $groupname /etc/group; then
+   echo "Groupname already exists \n"
+   echo "So the user was added to the $groupname group \n"
+else
+  sudo groupadd $groupname
+  echo " User and group are created \n"
+fi
+
+sudo useradd -m -s /bin/bash -g $groupname $username
+sudo passwd $username
+sudo mkdir /$username
+sudo chown $username.$group /$username
+
+echo "Done \n"                                                             
